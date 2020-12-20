@@ -21,6 +21,8 @@ set nowrap
 set hlsearch
 set incsearch
 
+set cursorcolumn
+
 set showtabline=2
 
 "set scrolloff=5
