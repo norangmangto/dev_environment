@@ -16,6 +16,7 @@ set smartindent
 set tabstop=4
 set shiftwidth=4
 set expandtab
+set listchars=eol:$,tab:>-,space:.,trail:~,extends:>,precedes:<
 
 set nowrap
 set hlsearch
