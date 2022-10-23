@@ -1,4 +1,24 @@
 # This is Git's per-user configuration file.
+[user]
+	name = Beomsoo Jang
+	email = norangmangto@gmail.com
+
 [alias]
+    plog = log --graph --pretty='format:%C(red)%d%C(reset) %C(yellow)%h%C(reset) %ar %C(green)%aN%C(reset) %s'
     glog = log --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(dim white)- %an%C(reset)%C(bold yellow)%d%C(reset)' --all
     glog-all = log --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(reset) - %C(bold cyan)%aD%C(reset) %C(bold green)(%ar)%C(reset)%C(bold yellow)%d%C(reset)%n''          %C(white)%s%C(reset) %C(dim white)- %an%C(reset)' --all
+
+    aa = add -all
+    ap = add -p
+    br = branch
+    bra = branch -a
+    ca = commit -a
+    cb = checkout -b
+    ci = commit
+    cm = commit -m
+    co = checkout
+    pl = pull
+    ps = push
+    psf = push --force-with-lease
+    st = status -sb
+    sts = stash
