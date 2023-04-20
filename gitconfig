@@ -8,17 +8,23 @@
     glog = log --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(dim white)- %an%C(reset)%C(bold yellow)%d%C(reset)' --all
     glog-all = log --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(reset) - %C(bold cyan)%aD%C(reset) %C(bold green)(%ar)%C(reset)%C(bold yellow)%d%C(reset)%n''          %C(white)%s%C(reset) %C(dim white)- %an%C(reset)' --all
 
-    aa = add -all
+    aa = add --all
+    aap = add --all -p
     ap = add -p
-    br = branch
+    # br = branch
+    br = branch --format='%(HEAD) %(color:yellow)%(refname:short)%(color:reset) - %(contents:subject) %(color:green)(%(committerdate:relative)) [%(authorname)]' --sort=-committerdate
     bra = branch -a
-    ca = commit -a
+    brd = branch -D
     cb = checkout -b
-    ci = commit
-    cm = commit -m
+    ci = commit -v
+    cia = commit -v --amend
+    cim = commit -m
     co = checkout
+    di = diff
     pl = pull
     ps = push
     psf = push --force-with-lease
+    res = reset --hard
+    rv = remote -v
     st = status -sb
     sts = stash
