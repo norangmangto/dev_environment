@@ -19,8 +19,10 @@
     ci = commit -v
     cia = commit -v --amend
     cim = commit -m
+    cl = clone
     co = checkout
     di = diff
+    fta = fetch --all -t -p
     pl = pull
     ps = push
     psf = push --force-with-lease
@@ -28,3 +30,9 @@
     rv = remote -v
     st = status -sb
     sts = stash
+[push]
+	autoSetupRemote = true
+[pull]
+	rebase = true
+[url "ssh://git@github.com"]
+	insteadOf = https://github.com

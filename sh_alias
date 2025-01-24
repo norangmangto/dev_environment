@@ -1,0 +1,22 @@
+# kubectl
+alias kubectx="kubectl ctx"
+alias kubens="kubectl ns"
+
+# jq
+prettyjson_s() { echo "$1" | jq .  }
+prettyjson_f() { jq . "$1" }
+prettyjson_w() { curl "$1" | jq .  }
+
+# git
+git-clean-merged-branch() { git branch --merged main | grep -v "^\* main" | xargs -n 1 -r git branch -d }
+git-clean-removed-branch() { git branch -vv | grep ": gone]" | awk '{ print $1; }' | xargs -r git branch -d }
+git-clean-local-branch() { git checkout main && git pull && git branch | grep -v "main" | xargs git branch -D }
+
+# terraform
+alias tf="terraform"
+
+alias stat="/usr/bin/stat -f \"  File: '%N'%SY%n  Size: %-15z Blocks: %-10b IO Block: %-6k %HT%nDevice: %7Hr/%-7Lr Inode: %-11i Links: %l%nAccess: (%Mp%Lp/%Sp) Uid: (%5u/%8Su)  Gid: (%5g/%8Sg)%nAccess: %Sa%nModify: %Sm%nChange: %Sc%n Birth: %SB\" -t '%F %T %z'"
+
+# update omz / brew / gcloud
+alias update_all="echo 'Updating brew...'; (brew update && brew upgrade); echo 'Updating gcloud...'; gcloud components update;"
+
