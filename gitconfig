@@ -1,7 +1,14 @@
 # This is Git's per-user configuration file.
 [user]
-	name = Beomsoo Jang
-	email = norangmangto@gmail.com
+    name = Beomsoo Jang
+    email = norangmangto@gmail.com
+
+[core]
+    editor = /usr/bin/vim
+    pager = delta
+
+[interactive]
+    diffFilter = delta --color-only
 
 [alias]
     plog = log --graph --pretty='format:%C(red)%d%C(reset) %C(yellow)%h%C(reset) %ar %C(green)%aN%C(reset) %s'
@@ -30,9 +37,29 @@
     rv = remote -v
     st = status -sb
     sts = stash
+
 [push]
-	autoSetupRemote = true
+    autoSetupRemote = true
+
 [pull]
-	rebase = true
+    rebase = true
+
+[merge]
+    conflictstyle = diff3
+
 [url "ssh://git@github.com"]
-	insteadOf = https://github.com
+    insteadOf = https://github.com
+
+[filter "lfs"]
+    clean = git-lfs clean -- %f
+    smudge = git-lfs smudge -- %f
+    process = git-lfs filter-process
+    required = true
+
+[delta]
+    #syntax-theme = Dracula   # 또는 Nord, OneHalfDark 등
+    syntax-theme = "Coldark-Dark" # 또는 Nord, OneHalfDark 등
+    navigate = true      # n/N으로 diff 섹션 이동
+    side-by-side = true  # 좌우 분할 diff
+    line-numbers = true  # 라인 번호 표시
+
