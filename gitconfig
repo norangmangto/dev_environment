@@ -10,6 +10,19 @@
 [interactive]
     diffFilter = delta --color-only
 
+[core]
+    pager = delta
+
+[interactive]
+    diffFilter = delta --color-only
+
+[delta]
+    navigate = true  # use n and N to move between diff sections
+    dark = true      # or light = true, or omit for auto-detection
+
+[merge]
+    conflictStyle = zdiff3
+
 [alias]
     plog = log --graph --pretty='format:%C(red)%d%C(reset) %C(yellow)%h%C(reset) %ar %C(green)%aN%C(reset) %s'
     glog = log --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(dim white)- %an%C(reset)%C(bold yellow)%d%C(reset)' --all
@@ -30,9 +43,12 @@
     co = checkout
     di = diff
     fta = fetch --all -t -p
+    mg = merge
     pl = pull
     ps = push
     psf = push --force-with-lease
+    rmlb = branch -D
+    rmlt = tag --delete
     res = reset --hard
     rv = remote -v
     st = status -sb
