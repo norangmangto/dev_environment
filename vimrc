@@ -38,8 +38,5 @@ map <C-P> :tabp<CR>
 map <C-N> :tabn<CR>
 "map <C-I> :tabe<CR>
 
-"let &colorcolumn=join(range(81,81),",")
-""let &colorcolumn="80,".join(range(100,100),",")
-"highlight ColorColumn ctermbg=darkblue guibg=darkblue
-""highlight OverLength ctermbg=darkred ctermfg=white guibg=darkred
-"match OverLength /\%100v.*/
+autocmd FileType json setlocal tabstop=2 shiftwidth=2 softtabstop=2 expandtab
+

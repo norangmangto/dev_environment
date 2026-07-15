@@ -63,6 +63,8 @@ BAR="${FILL// /█}${PAD// /░}"
 
 MINS=$((DURATION_MS / 60000)); SECS=$(((DURATION_MS % 60000) / 1000))
 
+COST_FMT=$(printf '$%.2f' "$COST")
+
 # --- End of Prompt Settings Preparation ---
 
 
@@ -70,7 +72,7 @@ MINS=$((DURATION_MS / 60000)); SECS=$(((DURATION_MS % 60000) / 1000))
 
 PROMPT=""
 PROMPT_1ST_LINE="[$MODEL${CYAN} · ${EFFORT}${RESET}] 📁 ${DIR##*/}$BRANCH"
-PROMPT_2ND_LINE="${BAR_COLOR}${BAR}${RESET} ${PCT}% | ${YELLOW}${COST_FMT}${RESET} | ⏱️ ${MINS}m ${SECS}s"
+PROMPT_2ND_LINE="${BAR_COLOR}${BAR}${RESET} ${PCT}% | 💰 ${YELLOW}${COST_FMT}${RESET} | ⏱️ ${MINS}m ${SECS}s"
 
 # Session context window: tokens used / limit + percentage
 if [ "$CTX_SIZE" -gt 0 ]; then
