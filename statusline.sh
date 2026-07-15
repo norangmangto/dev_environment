@@ -9,6 +9,8 @@ DIR=$(echo "$input" | jq -r '.workspace.current_dir')
 MODEL=$(echo "$input" | jq -r '.model.display_name')
 EFFORT=$(echo "$input" | jq -r '.effort.level')
 
+WORKTREE=$(echo "$input" | jq -r '.workspace.git_worktree')
+
 # --- Context window: session token counts + limit (real numbers, from stdin) ---
 # The "// 0" provides a fallback if the field is null
 PCT=$(echo "$input" | jq -r '.context_window.used_percentage // 0' | cut -d. -f1)
