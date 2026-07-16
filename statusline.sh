@@ -50,9 +50,22 @@ fmt_tok() {
   fi
 }
 
-# Git Branch
-BRANCH=""
-git rev-parse --git-dir > /dev/null 2>&1 && BRANCH=" | 🌿 $(git branch --show-current 2>/dev/null)"
+
+# Git
+
+GIT_PROMPT=""
+
+if git rev-parse --git-dir > /dev/null 2>&1; then
+    BRANCH=$(git branch --show-current 2>/dev/null)
+    STAGED=$(git diff --cached --numstat 2>/dev/null | wc -l | tr -d ' ')
+    MODIFIED=$(git diff --numstat 2>/dev/null | wc -l | tr -d ' ')
+
+    GIT_STATUS=""
+    [ "$STAGED" -gt 0 ] && GIT_STATUS="${GREEN}+${STAGED}${RESET}"
+    [ "$MODIFIED" -gt 0 ] && GIT_STATUS="${GIT_STATUS}${YELLOW}~${MODIFIED}${RESET}"
+
+    GIT_PROMPT=" | 🌿 $BRANCH $GIT_STATUS"
+fi
 
 # Pick bar color based on context usage
 if [ "$PCT" -ge 90 ]; then BAR_COLOR="$RED"
@@ -73,7 +86,7 @@ COST_FMT=$(printf '$%.2f' "$COST")
 # --- Prompt ---
 
 PROMPT=""
-PROMPT_1ST_LINE="[$MODEL${CYAN} · ${EFFORT}${RESET}] 📁 ${DIR##*/}$BRANCH"
+PROMPT_1ST_LINE="[$MODEL${CYAN} · ${EFFORT}${RESET}] 📁 ${DIR##*/}$GIT_PROMPT"
 PROMPT_2ND_LINE="${BAR_COLOR}${BAR}${RESET} ${PCT}% | 💰 ${YELLOW}${COST_FMT}${RESET} | ⏱️ ${MINS}m ${SECS}s"
 
 # Session context window: tokens used / limit + percentage
