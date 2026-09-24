@@ -1,0 +1,15 @@
+# Minimal zshrc: oh-my-zsh + shared/zsh aliases. Symlinked to ~/.zshrc by install.py.
+export ZSH="$HOME/.oh-my-zsh"
+ZSH_THEME="robbyrussell"
+plugins=(git)
+[ -f "$ZSH/oh-my-zsh.sh" ] && source "$ZSH/oh-my-zsh.sh"
+
+[ -f "$HOME/.sh_alias" ] && source "$HOME/.sh_alias"
+[ -f "$HOME/.zsh_alias" ] && source "$HOME/.zsh_alias"
+
+export EDITOR=nvim
+export VISUAL=nvim
+
+if command -v uv >/dev/null 2>&1; then
+  eval "$(uv generate-shell-completion zsh)"
+fi
