@@ -218,6 +218,9 @@ TOOLS: list[Tool] = [
     Tool("git", "git", "Core", lambda: which("git"), brew_install("git")),
     Tool("git-config", "  -> symlink gitconfig to ~/.gitconfig", "Core",
          lambda: (HOME / ".gitconfig").is_symlink(), link("git/gitconfig", "~/.gitconfig")),
+    Tool("git-ignore-global", "  -> symlink global gitignore to ~/.config/git/ignore", "Core",
+         lambda: (HOME / ".config" / "git" / "ignore").is_symlink(),
+         link("git/gitignore_global", "~/.config/git/ignore")),
     Tool("gh", "GitHub CLI (gh)", "Core", lambda: which("gh"), brew_install("gh")),
 
     Tool("ruff", "ruff (Python linter/formatter)", "Languages",

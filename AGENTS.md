@@ -35,6 +35,9 @@ Entry points live at the repo root; everything else is grouped by topic.
 - `git/`
   - `gitconfig` — global git config: `delta` as pager/diff filter, aliases (`st`,
     `co`, `br`, `plog`, `glog`, etc.), `pull.rebase = true`, SSH rewrite for GitHub.
+  - `gitignore_global` — global gitignore (`**/.claude/settings.local.json`),
+    symlinked to `~/.config/git/ignore` (git reads this path by default even
+    without an explicit `core.excludesfile`, so none is set in `gitconfig`).
 - Fonts (no dedicated directory — just a `Tool` entry in `install.py`):
   - JetBrains Mono Nerd Font (brew cask `font-jetbrains-mono-nerd-font`) — backs
     icon rendering for `nvim-web-devicons` (LazyVim) and `eza` in the terminal.
