@@ -20,8 +20,12 @@ Entry points live at the repo root; everything else is grouped by topic.
   - `bashrc` — bash env vars, prompt (`PS1`), history config, `ls`/grep aliases,
     Docker/pipenv/cargo env sourcing. Symlinked to `~/.bashrc` (bash reads this for
     interactive non-login shells, which is how bash actually gets invoked here).
-  - `zshrc` — oh-my-zsh setup, editor/PATH env vars, Docker/kaf/kubectl/dbt
-    integration sourcing. Symlinked to `~/.zshrc`.
+  - `zshrc` — oh-my-zsh setup (`ZSH_THEME="robbyrussell"`,
+    `plugins=(git zsh-autosuggestions zsh-syntax-highlighting)`), editor/PATH env
+    vars, Docker/kaf/kubectl/dbt integration sourcing. Symlinked to `~/.zshrc`.
+    `install.py` also clones `zsh-autosuggestions`/`zsh-syntax-highlighting` into
+    `~/.oh-my-zsh/custom/plugins/` (not bundled with oh-my-zsh itself), otherwise
+    the `plugins=(...)` line silently no-ops on a fresh machine.
   - `zsh_alias` — all shell aliases/functions (eza/bat/glow/nvim wrappers, kubectl,
     jq helpers, git branch cleanup, terraform, brew/gcloud update). Symlinked to
     `~/.zsh_alias`, sourced from `zshrc`. (Previously split into a zsh-only file

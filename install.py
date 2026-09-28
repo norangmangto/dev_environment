@@ -136,6 +136,25 @@ def install_oh_my_zsh(log: LogFn) -> None:
     log(r.stdout or r.stderr or "(no output)")
 
 
+OMZ_CUSTOM_PLUGINS = {
+    "zsh-autosuggestions": "https://github.com/zsh-users/zsh-autosuggestions",
+    "zsh-syntax-highlighting": "https://github.com/zsh-users/zsh-syntax-highlighting",
+}
+
+
+def install_ohmyzsh_plugins(log: LogFn) -> None:
+    plugins_dir = HOME / ".oh-my-zsh" / "custom" / "plugins"
+    plugins_dir.mkdir(parents=True, exist_ok=True)
+    for name, url in OMZ_CUSTOM_PLUGINS.items():
+        dest = plugins_dir / name
+        if dest.exists():
+            log(f"ok    {dest} already cloned")
+            continue
+        log(f"$ git clone {url} {dest}")
+        r = sh(f"git clone '{url}' '{dest}'")
+        log(r.stdout or r.stderr or "(no output)")
+
+
 def ensure_node(log: LogFn) -> None:
     if not which("npm"):
         log("npm not found, installing node via brew first")
@@ -208,6 +227,10 @@ TOOLS: list[Tool] = [
          lambda: False, install_iterm2_theme, macos_only=True),
 
     Tool("ohmyzsh", "Oh My Zsh", "Shell", lambda: (HOME / ".oh-my-zsh").exists(), install_oh_my_zsh),
+    Tool("ohmyzsh-plugins", "  -> zsh-autosuggestions + zsh-syntax-highlighting plugins", "Shell",
+         lambda: all((HOME / ".oh-my-zsh" / "custom" / "plugins" / n).exists()
+                      for n in OMZ_CUSTOM_PLUGINS),
+         install_ohmyzsh_plugins),
     Tool("zshrc", "  -> zshrc", "Shell",
          lambda: (HOME / ".zshrc").exists(), link("shell/zshrc", "~/.zshrc")),
     Tool("zsh_alias", "  -> zsh_alias", "Shell",
