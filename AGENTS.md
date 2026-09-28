@@ -58,10 +58,10 @@ Entry points live at the repo root; everything else is grouped by topic.
 - `terminal/`
   - `screenrc` — GNU screen config.
   - `tmux.conf` — tmux config.
-  - `iterm2/DevEnvironment.itermcolors` — color preset, generated from the
-    actual default profile's colors below (so it stays consistent with them
-    rather than an independently hand-picked palette); opened with `open` so
-    iTerm2 prompts to import it as a reusable Color Preset.
+  - `iterm2/Dracula+.itermcolors` — color preset matching the profile's actual
+    colors below (it turned out to be iTerm2's built-in "Dracula+" preset,
+    already applied — not a bespoke palette, hence the name); opened with
+    `open` so iTerm2 prompts to import it as a reusable Color Preset.
   - `iterm2/DynamicProfiles.json` — the actual default iTerm2 profile (font,
     ANSI colors, triggers, keyboard map, status bar layout), symlinked into
     `~/Library/Application Support/iTerm2/DynamicProfiles/` (iTerm2's

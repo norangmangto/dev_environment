@@ -118,7 +118,7 @@ def install_vscode_extensions(log: LogFn) -> None:
 
 
 def install_iterm2_theme(log: LogFn) -> None:
-    theme = REPO_ROOT / "terminal" / "iterm2" / "DevEnvironment.itermcolors"
+    theme = REPO_ROOT / "terminal" / "iterm2" / "Dracula+.itermcolors"
     log(f"$ open '{theme}'")
     log("iTerm2 will prompt to import the color preset into Preferences > Profiles > Colors.")
     sh(f"open '{theme}'")
