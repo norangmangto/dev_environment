@@ -92,6 +92,30 @@ def install_lazyvim(log: LogFn) -> None:
         shutil.copyfile(f, dest)
         log(f"copied {f.name} -> {dest}")
 
+    init_lua = nvim_cfg / "init.lua"
+    if init_lua.exists():
+        contents = init_lua.read_text()
+        if 'vim.o.background = "dark"' not in contents:
+            init_lua.write_text(contents.rstrip("\n") + '\n\nvim.o.background = "dark"\n')
+            log(f"appended background=dark to {init_lua}")
+        else:
+            log(f"ok    {init_lua} already sets background=dark")
+
+
+def install_vscode_extensions(log: LogFn) -> None:
+    if not which("code"):
+        log("`code` CLI not found on PATH — open VS Code once and run "
+            "'Shell Command: Install \"code\" command in PATH', then re-run this step.")
+        return
+    ext_file = REPO_ROOT / "editor" / "vscode" / "extensions.txt"
+    for line in ext_file.read_text().splitlines():
+        ext = line.strip()
+        if not ext or ext.startswith("#"):
+            continue
+        log(f"$ code --install-extension {ext}")
+        r = sh(f"code --install-extension {ext}")
+        log(r.stdout or r.stderr or "(no output)")
+
 
 def install_iterm2_theme(log: LogFn) -> None:
     theme = REPO_ROOT / "terminal" / "iterm2" / "DevEnvironment.itermcolors"
@@ -166,6 +190,11 @@ TOOLS: list[Tool] = [
     Tool("ruff", "ruff (Python linter/formatter)", "Languages",
          lambda: which("ruff"), run_cmds("uv tool install ruff")),
 
+    Tool("nerd-font", "JetBrains Mono Nerd Font", "Fonts",
+         lambda: (HOME / "Library" / "Fonts" / "JetBrainsMonoNerdFont-Regular.ttf").exists(),
+         run_cmds("brew tap homebrew/cask-fonts", "brew install --cask font-jetbrains-mono-nerd-font"),
+         macos_only=True),
+
     Tool("neovim", "Neovim", "Editor", lambda: which("nvim"), brew_install("neovim")),
     Tool("lazyvim", "  -> LazyVim starter + extra colorschemes/plugins", "Editor",
          lambda: (HOME / ".config" / "nvim" / "lua" / "config" / "lazy.lua").exists(), install_lazyvim),
@@ -180,13 +209,11 @@ TOOLS: list[Tool] = [
 
     Tool("ohmyzsh", "Oh My Zsh", "Shell", lambda: (HOME / ".oh-my-zsh").exists(), install_oh_my_zsh),
     Tool("zshrc", "  -> zshrc", "Shell",
-         lambda: (HOME / ".zshrc").is_symlink(), link("shell/zshrc", "~/.zshrc")),
+         lambda: (HOME / ".zshrc").exists(), link("shell/zshrc", "~/.zshrc")),
     Tool("zsh_alias", "  -> zsh_alias", "Shell",
-         lambda: (HOME / ".zsh_alias").is_symlink(), link("shell/zsh_alias", "~/.zsh_alias")),
-    Tool("sh_alias", "  -> sh_alias (shared aliases)", "Shell",
-         lambda: (HOME / ".sh_alias").is_symlink(), link("shell/sh_alias", "~/.sh_alias")),
-    Tool("bash_profile", "  -> bash_profile", "Shell",
-         lambda: (HOME / ".bash_profile").is_symlink(), link("shell/bash_profile", "~/.bash_profile")),
+         lambda: (HOME / ".zsh_alias").exists(), link("shell/zsh_alias", "~/.zsh_alias")),
+    Tool("bashrc", "  -> bashrc", "Shell",
+         lambda: (HOME / ".bashrc").exists(), link("shell/bashrc", "~/.bashrc")),
 
     Tool("claude-code", "Claude Code", "AI CLIs", lambda: which("claude"), install_claude_code),
     Tool("codex", "Codex CLI", "AI CLIs", lambda: which("codex"), install_codex),
@@ -207,6 +234,16 @@ TOOLS: list[Tool] = [
 
     Tool("vimrc", "  -> vimrc", "Editor",
          lambda: (HOME / ".vimrc").is_symlink(), link("editor/vimrc", "~/.vimrc")),
+    Tool("vscode", "Visual Studio Code", "Editor",
+         lambda: Path("/Applications/Visual Studio Code.app").exists(),
+         brew_install("visual-studio-code", cask=True), macos_only=True),
+    Tool("vscode-settings", "  -> settings.json (color theme + editor prefs)", "Editor",
+         lambda: (HOME / "Library" / "Application Support" / "Code" / "User" / "settings.json").is_symlink(),
+         link("editor/vscode/settings.json",
+              "~/Library/Application Support/Code/User/settings.json"),
+         macos_only=True),
+    Tool("vscode-extensions", "  -> install extensions (theme + plugins)", "Editor",
+         lambda: False, install_vscode_extensions),
     Tool("screenrc", "  -> screenrc", "Terminal",
          lambda: (HOME / ".screenrc").is_symlink(), link("terminal/screenrc", "~/.screenrc")),
 ]

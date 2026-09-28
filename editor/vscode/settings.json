@@ -1,0 +1,57 @@
+{
+    "workbench.startupEditor": "none",
+    "[python]": {
+        "editor.formatOnType": true,
+        "editor.rulers": [
+            79
+        ],
+        "editor.defaultFormatter": "ms-python.autopep8"
+    },
+    "[git-commit]": {
+        "editor.rulers": [
+            50
+        ]
+    },
+    "[sql]": {
+        "editor.rulers": [
+            130
+        ]
+    },
+    "workbench.colorTheme": "One Dark Pro Monokai Darker",
+    "editor.multiCursorModifier": "ctrlCmd",
+    "editor.largeFileOptimizations": false,
+    "comment-divider.length": 79,
+    "[markdown]": {
+        "editor.defaultFormatter": "yzhang.markdown-all-in-one"
+    },
+    "gitlens.views.scm.grouped.views": {
+        "commits": true,
+        "branches": true,
+        "remotes": true,
+        "stashes": true,
+        "tags": true,
+        "worktrees": true,
+        "contributors": true,
+        "repositories": false,
+        "searchAndCompare": false,
+        "launchpad": true
+    },
+    "go.toolsManagement.autoUpdate": true,
+    "makefile.configureOnOpen": false,
+    "docker.extension.enableComposeLanguageServer": false,
+    "github.copilot.nextEditSuggestions.enabled": true,
+    "python.defaultInterpreterPath": "/opt/homebrew/bin/python3",
+    "editor.rulers": [],
+    "claudeCode.preferredLocation": "panel",
+    "yaml.disableSchemaDetection": [
+        "**/dbt_project.yml",
+        "**/dbt_project.yaml",
+        "**/.github/workflows/*.yml",
+        "**/.github/workflows/*.yaml",
+        "**/.gitea/workflows/*.yml",
+        "**/.gitea/workflows/*.yaml",
+        "**/.forgejo/workflows/*.yml",
+        "**/.forgejo/workflows/*.yaml"
+    ],
+    "githubPullRequests.fileListLayout": "tree",
+}

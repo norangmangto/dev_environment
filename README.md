@@ -23,7 +23,7 @@ installs/relinks what you select.
 ```
 bootstrap.sh   entry point: ensures brew + uv, then runs install.py
 install.py     TUI installer (Textual) — the source of truth for what gets installed
-shell/         bash_profile, sh_alias, zshrc, zsh_alias
+shell/         bashrc, zshrc, zsh_alias
 git/           gitconfig
 editor/        vimrc, nvim/plugins/*.lua (LazyVim colorschemes + plugins)
 terminal/      screenrc, tmux.conf, iterm2/*.itermcolors

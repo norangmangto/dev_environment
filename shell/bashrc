@@ -1,3 +1,8 @@
+# bash env vars, prompt, history config, aliases. Symlinked to ~/.bashrc by
+# install.py. (Renamed from bash_profile: this repo's bash content is
+# interactive-shell config, which bash reads from ~/.bashrc, not the
+# login-shell ~/.bash_profile — and nothing here actually needs login-shell
+# semantics.)
 export TERM=xterm-color
 
 #export PS1='\[\033[1;36m\]\u\[\033[m\]@\[\033[1;32m\]\h:\[\033[1;35m\]\w\[\033[1;31m\]\$\[\033[0m\] '
@@ -35,3 +40,11 @@ alias git-clean-local-branch="git checkout master && git pull && git branch | gr
 #  > scp -P 1234 ./<path-to-copy> user2@localhost:<path-to-be-copied>
 #  ex) > scp -r -P 5678 ./<path-to-copy> bjang@localhost:<path-to-be-copied>
 
+
+# Docker Desktop
+[ -f "$HOME/.docker/init-bash.sh" ] && source "$HOME/.docker/init-bash.sh"
+
+export PIPENV_VENV_IN_PROJECT=1
+
+# Rust
+[ -f "$HOME/.cargo/env" ] && . "$HOME/.cargo/env"

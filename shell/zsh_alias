@@ -1,6 +1,14 @@
-# zsh-only aliases: modern CLI replacements. Symlinked to ~/.zsh_alias.
-# Shared (bash + zsh) aliases live in sh_alias / ~/.sh_alias instead.
+# zsh aliases/functions. Symlinked to ~/.zsh_alias, sourced by shell/zshrc.
+#
+# Previously split into zsh_alias (zsh-only) + sh_alias (shared bash/zsh),
+# on the theory that bash sessions would source sh_alias too. In practice
+# nothing sourced sh_alias for bash (the ~/.bash_profile symlink had gone
+# stale/dangling) and this repo is zsh-only in practice, so the split was
+# merged back into this one file. If bash support becomes a real target
+# again, split shell/bash-portable content back out rather than reviving
+# sh_alias as dead weight.
 
+# modern CLI replacements
 if command -v eza >/dev/null 2>&1; then
   alias ls="eza --group-directories-first"
   alias ll="eza -la --group-directories-first"
@@ -18,3 +26,25 @@ fi
 if command -v nvim >/dev/null 2>&1; then
   alias vim="nvim"
 fi
+
+# kubectl
+alias kubectx="kubectl ctx"
+alias kubens="kubectl ns"
+
+# jq
+prettyjson_s() { echo "$1" | jq .  }
+prettyjson_f() { jq . "$1" }
+prettyjson_w() { curl "$1" | jq .  }
+
+# git
+git-clean-merged-branch() { git branch --merged main | grep -v "^\* main" | xargs -n 1 -r git branch -d }
+git-clean-removed-branch() { git branch -vv | grep ": gone]" | awk '{ print $1; }' | xargs -r git branch -d }
+git-clean-local-branch() { git checkout main && git pull && git branch | grep -v "main" | xargs git branch -D }
+
+# terraform
+alias tf="terraform"
+
+alias stat="/usr/bin/stat -f \"  File: '%N'%SY%n  Size: %-15z Blocks: %-10b IO Block: %-6k %HT%nDevice: %7Hr/%-7Lr Inode: %-11i Links: %l%nAccess: (%Mp%Lp/%Sp) Uid: (%5u/%8Su)  Gid: (%5g/%8Sg)%nAccess: %Sa%nModify: %Sm%nChange: %Sc%n Birth: %SB\" -t '%F %T %z'"
+
+# update omz / brew / gcloud
+alias update_all="echo 'Updating brew...'; (brew update && brew upgrade); echo 'Updating gcloud...'; gcloud components update;"

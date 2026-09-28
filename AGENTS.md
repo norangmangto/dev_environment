@@ -14,19 +14,40 @@ Entry points live at the repo root; everything else is grouped by topic.
   selects/unselects items and installs/links them. The `TOOLS` list is the single
   source of truth for what this repo manages.
 
-- `shell/` — bash/zsh env setup.
-  - `bash_profile` — bash env vars, prompt (`PS1`), history config, `ls`/grep aliases.
-  - `sh_alias` — shared shell aliases/functions (kubectl, jq helpers, git branch
-    cleanup, terraform, brew/gcloud update). Sourced by both bash and zsh.
-  - `zshrc`, `zsh_alias` — oh-my-zsh setup + eza/bat/glow aliases, zsh-only.
+- `shell/` — bash/zsh env setup. This repo is zsh-only in practice (see
+  `zshrc`/`zsh_alias` below); `bashrc` is kept for anyone who still
+  drops into bash, but isn't actively maintained.
+  - `bashrc` — bash env vars, prompt (`PS1`), history config, `ls`/grep aliases,
+    Docker/pipenv/cargo env sourcing. Symlinked to `~/.bashrc` (bash reads this for
+    interactive non-login shells, which is how bash actually gets invoked here).
+  - `zshrc` — oh-my-zsh setup, editor/PATH env vars, Docker/kaf/kubectl/dbt
+    integration sourcing. Symlinked to `~/.zshrc`.
+  - `zsh_alias` — all shell aliases/functions (eza/bat/glow/nvim wrappers, kubectl,
+    jq helpers, git branch cleanup, terraform, brew/gcloud update). Symlinked to
+    `~/.zsh_alias`, sourced from `zshrc`. (Previously split into a zsh-only file
+    plus a "shared bash+zsh" `sh_alias` — merged back into one file since nothing
+    actually sourced `sh_alias` for bash; see git history if bash support becomes
+    a real target again.)
 - `git/`
   - `gitconfig` — global git config: `delta` as pager/diff filter, aliases (`st`,
     `co`, `br`, `plog`, `glog`, etc.), `pull.rebase = true`, SSH rewrite for GitHub.
+- Fonts (no dedicated directory — just a `Tool` entry in `install.py`):
+  - JetBrains Mono Nerd Font (brew cask `font-jetbrains-mono-nerd-font`) — backs
+    icon rendering for `nvim-web-devicons` (LazyVim) and `eza` in the terminal.
 - `editor/`
   - `vimrc` — vim/neovim config.
-  - `nvim/plugins/*.lua` — extra LazyVim colorschemes (catppuccin, tokyonight,
-    gruvbox) and plugins (lazygit.nvim), copied into `~/.config/nvim/lua/plugins/`
-    after `install.py` clones the LazyVim starter.
+  - `nvim/plugins/colorscheme.lua` — extra LazyVim colorschemes (catppuccin,
+    tokyonight, kanagawa, monokai-pro — the active one), copied into
+    `~/.config/nvim/lua/plugins/` after `install.py` clones the LazyVim starter.
+  - `nvim/plugins/git.lua` — gitsigns (inline blame, hunk keymaps) + vim-fugitive,
+    copied the same way.
+  - `install.py` also appends `vim.o.background = "dark"` to
+    `~/.config/nvim/init.lua` if it isn't already there.
+  - `vscode/settings.json` — VS Code user settings (Catppuccin color theme,
+    per-language formatters), symlinked to
+    `~/Library/Application Support/Code/User/settings.json`.
+  - `vscode/extensions.txt` — one extension ID per line, installed with
+    `code --install-extension` (theme/icon pack + language/lint plugins).
 - `terminal/`
   - `screenrc` — GNU screen config.
   - `tmux.conf` — tmux config.
