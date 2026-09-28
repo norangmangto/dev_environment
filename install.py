@@ -310,7 +310,7 @@ class InstallerApp(App):
             if t.macos_only and not IS_MACOS:
                 continue
             installed = t.check()
-            suffix = "  [installed]" if installed else ""
+            suffix = "  (installed)" if installed else ""
             selections.append(Selection(f"{t.label}{suffix}", t.id, not installed))
         with Horizontal(id="body"):
             yield SelectionList[str](*selections, id="tools")
