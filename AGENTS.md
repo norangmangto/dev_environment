@@ -47,16 +47,27 @@ Entry points live at the repo root; everything else is grouped by topic.
     copied the same way.
   - `install.py` also appends `vim.o.background = "dark"` to
     `~/.config/nvim/init.lua` if it isn't already there.
-  - `vscode/settings.json` — VS Code user settings (Catppuccin color theme,
-    per-language formatters), symlinked to
-    `~/Library/Application Support/Code/User/settings.json`.
+  - `vscode/settings.json` — VS Code user settings (One Dark Pro Monokai Darker
+    theme, per-language formatters/rulers, gitlens/yaml/copilot config),
+    symlinked to `~/Library/Application Support/Code/User/settings.json`.
   - `vscode/extensions.txt` — one extension ID per line, installed with
-    `code --install-extension` (theme/icon pack + language/lint plugins).
+    `code --install-extension` (theme + language/lint/git plugins).
 - `terminal/`
   - `screenrc` — GNU screen config.
   - `tmux.conf` — tmux config.
-  - `iterm2/DevEnvironment.itermcolors` — color scheme, opened with `open` so
-    iTerm2 prompts to import it.
+  - `iterm2/DevEnvironment.itermcolors` — color preset, generated from the
+    actual default profile's colors below (so it stays consistent with them
+    rather than an independently hand-picked palette); opened with `open` so
+    iTerm2 prompts to import it as a reusable Color Preset.
+  - `iterm2/DynamicProfiles.json` — the actual default iTerm2 profile (font,
+    ANSI colors, triggers, keyboard map, status bar layout), symlinked into
+    `~/Library/Application Support/iTerm2/DynamicProfiles/` (iTerm2's
+    supported mechanism for version-controlled profiles; hot-reloaded, doesn't
+    touch unrelated app prefs). `install.py` also sets
+    `Default Bookmark Guid` via `defaults write` so it's selected as default on
+    a fresh machine. This is the source of truth for the colors above — if you
+    change the profile's colors in iTerm2, regenerate the `.itermcolors` preset
+    from it rather than editing the two independently.
 - `claude/`
   - `settings.json` — Claude Code CLI settings (permissions, status line, theme,
     effort level).

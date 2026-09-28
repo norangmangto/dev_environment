@@ -124,6 +124,20 @@ def install_iterm2_theme(log: LogFn) -> None:
     sh(f"open '{theme}'")
 
 
+ITERM2_DEFAULT_PROFILE_GUID = "DF822600-3266-4809-861F-8115F72308AF"
+
+
+def install_iterm2_profile(log: LogFn) -> None:
+    dest_dir = HOME / "Library" / "Application Support" / "iTerm2" / "DynamicProfiles"
+    dest = dest_dir / "DevEnvironment.json"
+    log(symlink(REPO_ROOT / "terminal" / "iterm2" / "DynamicProfiles.json", dest))
+    log(f"$ defaults write com.googlecode.iterm2 'Default Bookmark Guid' {ITERM2_DEFAULT_PROFILE_GUID}")
+    r = sh(f"defaults write com.googlecode.iterm2 'Default Bookmark Guid' '{ITERM2_DEFAULT_PROFILE_GUID}'")
+    log(r.stdout or r.stderr or "(no output)")
+    log("Restart iTerm2 to pick up the profile (Dynamic Profiles are hot-reloaded, "
+        "but the default-bookmark change needs a relaunch).")
+
+
 def install_oh_my_zsh(log: LogFn) -> None:
     if (HOME / ".oh-my-zsh").exists():
         log("ok    ~/.oh-my-zsh already installed")
@@ -225,6 +239,10 @@ TOOLS: list[Tool] = [
          brew_install("iterm2", cask=True), macos_only=True),
     Tool("iterm2-theme", "  -> import color theme into iTerm2", "Terminal",
          lambda: False, install_iterm2_theme, macos_only=True),
+    Tool("iterm2-profile", "  -> profile (font, colors, triggers, keymap, status bar)", "Terminal",
+         lambda: (HOME / "Library" / "Application Support" / "iTerm2" / "DynamicProfiles"
+                  / "DevEnvironment.json").is_symlink(),
+         install_iterm2_profile, macos_only=True),
 
     Tool("ohmyzsh", "Oh My Zsh", "Shell", lambda: (HOME / ".oh-my-zsh").exists(), install_oh_my_zsh),
     Tool("ohmyzsh-plugins", "  -> zsh-autosuggestions + zsh-syntax-highlighting plugins", "Shell",
