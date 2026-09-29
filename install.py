@@ -102,6 +102,24 @@ def install_lazyvim(log: LogFn) -> None:
             log(f"ok    {init_lua} already sets background=dark")
 
 
+def wanted_vscode_extensions() -> set[str]:
+    ext_file = REPO_ROOT / "editor" / "vscode" / "extensions.txt"
+    return {
+        line.strip() for line in ext_file.read_text().splitlines()
+        if line.strip() and not line.strip().startswith("#")
+    }
+
+
+def vscode_extensions_installed() -> bool:
+    if not which("code"):
+        return False
+    r = sh("code --list-extensions")
+    if r.returncode != 0:
+        return False
+    installed = set(r.stdout.split())
+    return wanted_vscode_extensions().issubset(installed)
+
+
 def install_vscode_extensions(log: LogFn) -> None:
     if not which("code"):
         log("`code` CLI not found on PATH — open VS Code once and run "
@@ -117,6 +135,11 @@ def install_vscode_extensions(log: LogFn) -> None:
         log(r.stdout or r.stderr or "(no output)")
 
 
+def iterm2_theme_installed() -> bool:
+    r = sh('defaults read com.googlecode.iterm2 "Custom Color Presets"')
+    return r.returncode == 0 and "Dracula+" in r.stdout
+
+
 def install_iterm2_theme(log: LogFn) -> None:
     theme = REPO_ROOT / "terminal" / "iterm2" / "Dracula+.itermcolors"
     log(f"$ open '{theme}'")
@@ -127,10 +150,19 @@ def install_iterm2_theme(log: LogFn) -> None:
 ITERM2_DEFAULT_PROFILE_GUID = "DF822600-3266-4809-861F-8115F72308AF"
 
 
+def iterm2_profile_installed() -> bool:
+    dest = (HOME / "Library" / "Application Support" / "iTerm2" / "DynamicProfiles"
+            / "CustomProfile.json")
+    if not dest.is_symlink():
+        return False
+    r = sh('defaults read com.googlecode.iterm2 "New Bookmarks"')
+    return r.returncode == 0 and ITERM2_DEFAULT_PROFILE_GUID in r.stdout
+
+
 def install_iterm2_profile(log: LogFn) -> None:
     dest_dir = HOME / "Library" / "Application Support" / "iTerm2" / "DynamicProfiles"
-    dest = dest_dir / "DevEnvironment.json"
-    log(symlink(REPO_ROOT / "terminal" / "iterm2" / "DynamicProfiles.json", dest))
+    dest = dest_dir / "CustomProfile.json"
+    log(symlink(REPO_ROOT / "terminal" / "iterm2" / "CustomProfile.json", dest))
     log(f"$ defaults write com.googlecode.iterm2 'Default Bookmark Guid' {ITERM2_DEFAULT_PROFILE_GUID}")
     r = sh(f"defaults write com.googlecode.iterm2 'Default Bookmark Guid' '{ITERM2_DEFAULT_PROFILE_GUID}'")
     log(r.stdout or r.stderr or "(no output)")
@@ -210,11 +242,7 @@ class Tool:
 
 
 TOOLS: list[Tool] = [
-    # Core (bootstrap.sh already guarantees brew + uv; listed for visibility/re-run)
-    Tool("brew", "Homebrew", "Core", lambda: which("brew"), run_cmds(
-        '/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"'
-    )),
-    Tool("uv", "uv (Python package/tool manager)", "Core", lambda: which("uv"), brew_install("uv")),
+    # Core (bootstrap.sh already guarantees brew + uv, so they aren't listed here)
     Tool("git", "git", "Core", lambda: which("git"), brew_install("git")),
     Tool("git-config", "  -> symlink gitconfig to ~/.gitconfig", "Core",
          lambda: (HOME / ".gitconfig").is_symlink(), link("git/gitconfig", "~/.gitconfig")),
@@ -241,11 +269,9 @@ TOOLS: list[Tool] = [
     Tool("iterm2", "iTerm2", "Terminal", lambda: Path("/Applications/iTerm.app").exists(),
          brew_install("iterm2", cask=True), macos_only=True),
     Tool("iterm2-theme", "  -> import color theme into iTerm2", "Terminal",
-         lambda: False, install_iterm2_theme, macos_only=True),
+         iterm2_theme_installed, install_iterm2_theme, macos_only=True),
     Tool("iterm2-profile", "  -> profile (font, colors, triggers, keymap, status bar)", "Terminal",
-         lambda: (HOME / "Library" / "Application Support" / "iTerm2" / "DynamicProfiles"
-                  / "DevEnvironment.json").is_symlink(),
-         install_iterm2_profile, macos_only=True),
+         iterm2_profile_installed, install_iterm2_profile, macos_only=True),
 
     Tool("ohmyzsh", "Oh My Zsh", "Shell", lambda: (HOME / ".oh-my-zsh").exists(), install_oh_my_zsh),
     Tool("ohmyzsh-plugins", "  -> zsh-autosuggestions + zsh-syntax-highlighting plugins", "Shell",
@@ -256,19 +282,20 @@ TOOLS: list[Tool] = [
          lambda: (HOME / ".zshrc").exists(), link("shell/zshrc", "~/.zshrc")),
     Tool("zsh_alias", "  -> zsh_alias", "Shell",
          lambda: (HOME / ".zsh_alias").exists(), link("shell/zsh_alias", "~/.zsh_alias")),
+    Tool("bash", "bash", "Shell", lambda: which("bash"), brew_install("bash")),
     Tool("bashrc", "  -> bashrc", "Shell",
          lambda: (HOME / ".bashrc").exists(), link("shell/bashrc", "~/.bashrc")),
 
     Tool("claude-code", "Claude Code", "AI CLIs", lambda: which("claude"), install_claude_code),
-    Tool("codex", "Codex CLI", "AI CLIs", lambda: which("codex"), install_codex),
-    Tool("copilot-cli", "GitHub Copilot CLI", "AI CLIs",
-         lambda: which("gh-copilot") or which("copilot"), install_copilot_cli),
     Tool("claude-settings", "  -> Claude Code settings.json", "AI CLIs",
          lambda: (HOME / ".claude" / "settings.json").is_symlink(),
          link("claude/settings.json", "~/.claude/settings.json")),
     Tool("claude-statusline", "  -> Claude Code statusline.sh", "AI CLIs",
          lambda: (HOME / ".claude" / "statusline.sh").is_symlink(),
          link("claude/statusline.sh", "~/.claude/statusline.sh")),
+    Tool("codex", "Codex CLI", "AI CLIs", lambda: which("codex"), install_codex),
+    Tool("copilot-cli", "GitHub Copilot CLI", "AI CLIs",
+         lambda: which("gh-copilot") or which("copilot"), install_copilot_cli),
 
     Tool("jq", "jq", "CLI utilities", lambda: which("jq"), brew_install("jq")),
     Tool("curl", "curl", "CLI utilities", lambda: which("curl"), brew_install("curl")),
@@ -276,6 +303,7 @@ TOOLS: list[Tool] = [
     Tool("bat", "bat (cat replacement)", "CLI utilities", lambda: which("bat"), brew_install("bat")),
     Tool("glow", "glow (markdown viewer)", "CLI utilities", lambda: which("glow"), brew_install("glow")),
 
+    Tool("vim", "vim", "Editor", lambda: which("vim"), brew_install("vim")),
     Tool("vimrc", "  -> vimrc", "Editor",
          lambda: (HOME / ".vimrc").is_symlink(), link("editor/vimrc", "~/.vimrc")),
     Tool("vscode", "Visual Studio Code", "Editor",
@@ -287,7 +315,8 @@ TOOLS: list[Tool] = [
               "~/Library/Application Support/Code/User/settings.json"),
          macos_only=True),
     Tool("vscode-extensions", "  -> install extensions (theme + plugins)", "Editor",
-         lambda: False, install_vscode_extensions),
+         vscode_extensions_installed, install_vscode_extensions),
+    Tool("screen", "screen", "Terminal", lambda: which("screen"), brew_install("screen")),
     Tool("screenrc", "  -> screenrc", "Terminal",
          lambda: (HOME / ".screenrc").is_symlink(), link("terminal/screenrc", "~/.screenrc")),
 ]

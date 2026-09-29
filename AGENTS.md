@@ -62,7 +62,7 @@ Entry points live at the repo root; everything else is grouped by topic.
     colors below (it turned out to be iTerm2's built-in "Dracula+" preset,
     already applied — not a bespoke palette, hence the name); opened with
     `open` so iTerm2 prompts to import it as a reusable Color Preset.
-  - `iterm2/DynamicProfiles.json` — the actual default iTerm2 profile (font,
+  - `iterm2/CustomProfile.json` — the actual default iTerm2 profile (`Custom`;
     ANSI colors, triggers, keyboard map, status bar layout), symlinked into
     `~/Library/Application Support/iTerm2/DynamicProfiles/` (iTerm2's
     supported mechanism for version-controlled profiles; hot-reloaded, doesn't
