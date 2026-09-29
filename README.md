@@ -11,10 +11,13 @@ up a new machine from scratch.
 
 This installs Homebrew and `uv` if they're missing, then launches an interactive
 TUI (built with `uv run install.py`) where you can select/unselect which tools and
-configs to install: git, GitHub CLI, `ruff`, JetBrains Mono Nerd Font, Neovim +
-LazyVim, vim, tmux, iTerm2 (+ theme/profile), Oh My Zsh (+ plugins), zsh, bash,
-Claude Code, Codex CLI, GitHub Copilot CLI, `jq`, `curl`, `eza`, `bat`, `glow`,
-VS Code, screen, and this repo's own dotfiles.
+configs to install, grouped by category: Core (git, GitHub CLI), Languages
+(`ruff`, Go, Rust), Fonts, Terminal Editors (Neovim + LazyVim, vim), Terminal
+(tmux, iTerm2 + theme/profile, screen), Shell (Oh My Zsh + plugins, zsh, bash),
+AI CLI tools (Claude Code, Codex CLI, GitHub Copilot CLI), AI tools (Claude
+Desktop, ChatGPT, GitHub Copilot for Xcode), CLI utilities (`jq`, `curl`, `eza`,
+`bat`, `glow`), IDEs (VS Code, Cursor, PyCharm, IntelliJ), and this repo's own
+dotfiles.
 
 Re-run `./bootstrap.sh` any time — it's safe to run repeatedly and only
 installs/relinks what you select.

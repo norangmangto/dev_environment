@@ -21,8 +21,11 @@ from typing import Callable
 from textual import work
 from textual.app import App, ComposeResult
 from textual.containers import Horizontal
-from textual.widgets import Button, Footer, Header, Log, SelectionList
-from textual.widgets.selection_list import Selection
+from textual.widgets import Button, Footer, Header, Log, Tree
+from textual.widgets.tree import TreeNode
+
+CHECKED = "☑"
+UNCHECKED = "☐"
 
 REPO_ROOT = Path(__file__).resolve().parent
 HOME = Path.home()
@@ -263,9 +266,12 @@ TOOLS: list[Tool] = [
          run_cmds("brew tap homebrew/cask-fonts", "brew install --cask font-jetbrains-mono-nerd-font"),
          macos_only=True),
 
-    Tool("neovim", "Neovim", "Editor", lambda: which("nvim"), brew_install("neovim")),
-    Tool("lazyvim", "  -> LazyVim starter + extra colorschemes/plugins", "Editor",
+    Tool("neovim", "Neovim", "Terminal Editors", lambda: which("nvim"), brew_install("neovim")),
+    Tool("lazyvim", "  -> LazyVim starter + extra colorschemes/plugins", "Terminal Editors",
          lambda: (HOME / ".config" / "nvim" / "lua" / "config" / "lazy.lua").exists(), install_lazyvim),
+    Tool("vim", "vim", "Terminal Editors", lambda: which("vim"), brew_install("vim")),
+    Tool("vimrc", "  -> vimrc", "Terminal Editors",
+         lambda: (HOME / ".vimrc").is_symlink(), link("editor/vimrc", "~/.vimrc")),
 
     Tool("tmux", "tmux", "Terminal", lambda: which("tmux"), brew_install("tmux")),
     Tool("tmux-config", "  -> tmux.conf", "Terminal",
@@ -290,36 +296,54 @@ TOOLS: list[Tool] = [
     Tool("bashrc", "  -> bashrc", "Shell",
          lambda: (HOME / ".bashrc").exists(), link("shell/bashrc", "~/.bashrc")),
 
-    Tool("claude-code", "Claude Code", "AI CLIs", lambda: which("claude"), install_claude_code),
-    Tool("claude-settings", "  -> Claude Code settings.json", "AI CLIs",
+    Tool("claude-code", "Claude Code", "AI CLI tools", lambda: which("claude"), install_claude_code),
+    Tool("claude-settings", "  -> Claude Code settings.json", "AI CLI tools",
          lambda: (HOME / ".claude" / "settings.json").is_symlink(),
          link("claude/settings.json", "~/.claude/settings.json")),
-    Tool("claude-statusline", "  -> Claude Code statusline.sh", "AI CLIs",
+    Tool("claude-statusline", "  -> Claude Code statusline.sh", "AI CLI tools",
          lambda: (HOME / ".claude" / "statusline.sh").is_symlink(),
          link("claude/statusline.sh", "~/.claude/statusline.sh")),
-    Tool("codex", "Codex CLI", "AI CLIs", lambda: which("codex"), install_codex, preselect=False),
-    Tool("copilot-cli", "GitHub Copilot CLI", "AI CLIs",
+    Tool("codex", "Codex CLI", "AI CLI tools", lambda: which("codex"), install_codex, preselect=False),
+    Tool("copilot-cli", "GitHub Copilot CLI", "AI CLI tools",
          lambda: which("gh-copilot") or which("copilot"), install_copilot_cli, preselect=False),
+
+    Tool("claude-desktop", "Claude Desktop", "AI tools",
+         lambda: Path("/Applications/Claude.app").exists(),
+         brew_install("claude", cask=True), macos_only=True, preselect=False),
+    Tool("chatgpt", "ChatGPT", "AI tools",
+         lambda: Path("/Applications/ChatGPT.app").exists(),
+         brew_install("chatgpt", cask=True), macos_only=True, preselect=False),
+    Tool("github-copilot", "GitHub Copilot (for Xcode)", "AI tools",
+         lambda: Path("/Applications/GitHub Copilot for Xcode.app").exists(),
+         brew_install("github-copilot-for-xcode", cask=True), macos_only=True, preselect=False),
 
     Tool("jq", "jq", "CLI utilities", lambda: which("jq"), brew_install("jq")),
     Tool("curl", "curl", "CLI utilities", lambda: which("curl"), brew_install("curl")),
     Tool("eza", "eza (ls replacement)", "CLI utilities", lambda: which("eza"), brew_install("eza")),
     Tool("bat", "bat (cat replacement)", "CLI utilities", lambda: which("bat"), brew_install("bat")),
     Tool("glow", "glow (markdown viewer)", "CLI utilities", lambda: which("glow"), brew_install("glow")),
+    Tool("terraform", "terraform", "CLI utilities", lambda: which("terraform"), brew_install("terraform")),
 
-    Tool("vim", "vim", "Editor", lambda: which("vim"), brew_install("vim")),
-    Tool("vimrc", "  -> vimrc", "Editor",
-         lambda: (HOME / ".vimrc").is_symlink(), link("editor/vimrc", "~/.vimrc")),
-    Tool("vscode", "Visual Studio Code", "Editor",
+    Tool("vscode", "Visual Studio Code", "IDEs",
          lambda: Path("/Applications/Visual Studio Code.app").exists(),
          brew_install("visual-studio-code", cask=True), macos_only=True),
-    Tool("vscode-settings", "  -> settings.json (color theme + editor prefs)", "Editor",
+    Tool("vscode-settings", "  -> settings.json (color theme + editor prefs)", "IDEs",
          lambda: (HOME / "Library" / "Application Support" / "Code" / "User" / "settings.json").is_symlink(),
          link("editor/vscode/settings.json",
               "~/Library/Application Support/Code/User/settings.json"),
          macos_only=True),
-    Tool("vscode-extensions", "  -> install extensions (theme + plugins)", "Editor",
+    Tool("vscode-extensions", "  -> install extensions (theme + plugins)", "IDEs",
          vscode_extensions_installed, install_vscode_extensions),
+    Tool("cursor", "Cursor", "IDEs",
+         lambda: Path("/Applications/Cursor.app").exists(),
+         brew_install("cursor", cask=True), macos_only=True, preselect=False),
+    Tool("pycharm", "PyCharm CE", "IDEs",
+         lambda: Path("/Applications/PyCharm CE.app").exists(),
+         brew_install("pycharm-ce", cask=True), macos_only=True, preselect=False),
+    Tool("intellij", "IntelliJ IDEA CE", "IDEs",
+         lambda: Path("/Applications/IntelliJ IDEA CE.app").exists(),
+         brew_install("intellij-idea-ce", cask=True), macos_only=True, preselect=False),
+
     Tool("screen", "screen", "Terminal", lambda: which("screen"), brew_install("screen")),
     Tool("screenrc", "  -> screenrc", "Terminal",
          lambda: (HOME / ".screenrc").is_symlink(), link("terminal/screenrc", "~/.screenrc")),
@@ -330,23 +354,81 @@ class InstallerApp(App):
     CSS = """
     Screen { layout: vertical; }
     #body { height: 1fr; }
-    SelectionList { width: 1fr; border: round $accent; }
+    Tree { width: 1fr; border: round $accent; }
     Log { width: 1fr; border: round $accent; }
     #actions { height: 3; }
     """
     BINDINGS = [("q", "quit", "Quit")]
 
-    def compose(self) -> ComposeResult:
-        yield Header(show_clock=True)
-        selections = []
+    SUB_PREFIX = "  -> "
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.by_id: dict[str, Tool] = {}
+        self.installed: dict[str, bool] = {}
+        self.selected: set[str] = set()
+        self.node_by_id: dict[str, TreeNode[str]] = {}
         for t in TOOLS:
             if t.macos_only and not IS_MACOS:
                 continue
-            installed = t.check()
-            suffix = "  (installed)" if installed else ""
-            selections.append(Selection(f"{t.label}{suffix}", t.id, t.preselect and not installed))
+            self.by_id[t.id] = t
+            self.installed[t.id] = t.check()
+            if t.preselect and not self.installed[t.id]:
+                self.selected.add(t.id)
+
+    def _display_text(self, tid: str) -> str:
+        text = self.by_id[tid].label
+        if text.startswith(self.SUB_PREFIX):
+            text = text[len(self.SUB_PREFIX):]
+        return text
+
+    def _label(self, tid: str) -> str:
+        box = CHECKED if tid in self.selected else UNCHECKED
+        suffix = "  (installed)" if self.installed[tid] else ""
+        return f"{box} {self._display_text(tid)}{suffix}"
+
+    def _group_children(self, ids: list[str]) -> list[tuple[str, list[str]]]:
+        """Group a category's tool ids into (parent_id, [child_ids]) pairs.
+
+        A tool whose label starts with SUB_PREFIX is a sub-item of the
+        nearest preceding tool in the same category that isn't.
+        """
+        groups: list[tuple[str, list[str]]] = []
+        for tid in ids:
+            if groups and self.by_id[tid].label.startswith(self.SUB_PREFIX):
+                groups[-1][1].append(tid)
+            else:
+                groups.append((tid, []))
+        return groups
+
+    def compose(self) -> ComposeResult:
+        yield Header(show_clock=True)
         with Horizontal(id="body"):
-            yield SelectionList[str](*selections, id="tools")
+            tree: Tree[str] = Tree("Tools", id="tools")
+            tree.show_root = False
+            tree.auto_expand = False
+            categories: dict[str, list[str]] = {}
+            for tid, t in self.by_id.items():
+                categories.setdefault(t.category, []).append(tid)
+            for category in sorted(categories, key=str.lower):
+                ids = categories[category]
+                cat_node = tree.root.add(category, expand=True)
+                groups = self._group_children(ids)
+                groups.sort(key=lambda g: self._display_text(g[0]).lower())
+                for parent_id, child_ids in groups:
+                    child_ids = sorted(child_ids, key=lambda cid: self._display_text(cid).lower())
+                    if child_ids:
+                        parent_node = cat_node.add(
+                            self._label(parent_id), data=parent_id, expand=True
+                        )
+                        self.node_by_id[parent_id] = parent_node
+                        for cid in child_ids:
+                            leaf = parent_node.add_leaf(self._label(cid), data=cid)
+                            self.node_by_id[cid] = leaf
+                    else:
+                        leaf = cat_node.add_leaf(self._label(parent_id), data=parent_id)
+                        self.node_by_id[parent_id] = leaf
+            yield tree
             yield Log(id="log")
         with Horizontal(id="actions"):
             yield Button("Select all", id="select-all")
@@ -355,16 +437,32 @@ class InstallerApp(App):
             yield Button("Quit", id="quit", variant="error")
         yield Footer()
 
+    def _set_selected(self, tid: str, value: bool) -> None:
+        if value:
+            self.selected.add(tid)
+        else:
+            self.selected.discard(tid)
+        self.node_by_id[tid].set_label(self._label(tid))
+
+    def _toggle(self, tid: str) -> None:
+        self._set_selected(tid, tid not in self.selected)
+
+    def on_tree_node_selected(self, event: Tree.NodeSelected[str]) -> None:
+        tid = event.node.data
+        if tid is not None:
+            self._toggle(tid)
+
     def on_button_pressed(self, event: Button.Pressed) -> None:
-        sl = self.query_one("#tools", SelectionList)
         if event.button.id == "select-all":
-            sl.select_all()
+            for tid in self.by_id:
+                self._set_selected(tid, True)
         elif event.button.id == "select-none":
-            sl.deselect_all()
+            for tid in self.by_id:
+                self._set_selected(tid, False)
         elif event.button.id == "quit":
             self.exit()
         elif event.button.id == "install":
-            self.do_install(list(sl.selected))
+            self.do_install(list(self.selected))
 
     @work(thread=True)
     def do_install(self, ids: list[str]) -> None:
@@ -378,9 +476,8 @@ class InstallerApp(App):
             log("Nothing selected.")
             return
 
-        by_id = {t.id: t for t in TOOLS}
         for tid in ids:
-            tool = by_id[tid]
+            tool = self.by_id[tid]
             log("")
             log(f"=== {tool.label.strip()} ===")
             try:
