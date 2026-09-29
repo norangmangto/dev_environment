@@ -239,6 +239,7 @@ class Tool:
     check: Callable[[], bool]
     install: Callable[[LogFn], None]
     macos_only: bool = False
+    preselect: bool = True
 
 
 TOOLS: list[Tool] = [
@@ -253,6 +254,8 @@ TOOLS: list[Tool] = [
 
     Tool("ruff", "ruff (Python linter/formatter)", "Languages",
          lambda: which("ruff"), run_cmds("uv tool install ruff")),
+    Tool("go", "Go", "Languages", lambda: which("go"), brew_install("go"), preselect=False),
+    Tool("rust", "Rust", "Languages", lambda: which("cargo"), brew_install("rust"), preselect=False),
 
     Tool("nerd-font", "JetBrains Mono Nerd Font", "Fonts",
          lambda: (HOME / "Library" / "Fonts" / "JetBrainsMonoNerdFont-Regular.ttf").exists(),
@@ -293,9 +296,9 @@ TOOLS: list[Tool] = [
     Tool("claude-statusline", "  -> Claude Code statusline.sh", "AI CLIs",
          lambda: (HOME / ".claude" / "statusline.sh").is_symlink(),
          link("claude/statusline.sh", "~/.claude/statusline.sh")),
-    Tool("codex", "Codex CLI", "AI CLIs", lambda: which("codex"), install_codex),
+    Tool("codex", "Codex CLI", "AI CLIs", lambda: which("codex"), install_codex, preselect=False),
     Tool("copilot-cli", "GitHub Copilot CLI", "AI CLIs",
-         lambda: which("gh-copilot") or which("copilot"), install_copilot_cli),
+         lambda: which("gh-copilot") or which("copilot"), install_copilot_cli, preselect=False),
 
     Tool("jq", "jq", "CLI utilities", lambda: which("jq"), brew_install("jq")),
     Tool("curl", "curl", "CLI utilities", lambda: which("curl"), brew_install("curl")),
@@ -340,7 +343,7 @@ class InstallerApp(App):
                 continue
             installed = t.check()
             suffix = "  (installed)" if installed else ""
-            selections.append(Selection(f"{t.label}{suffix}", t.id, not installed))
+            selections.append(Selection(f"{t.label}{suffix}", t.id, t.preselect and not installed))
         with Horizontal(id="body"):
             yield SelectionList[str](*selections, id="tools")
             yield Log(id="log")
